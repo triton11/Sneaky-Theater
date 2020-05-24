@@ -5,7 +5,8 @@ const Player = new Schema(
     {
         name: { type: String, required: true },
         code: { type: String, required: true },
-        round: { type: Map, of: String }
+        answers: { type: Array },
+        character: { type: String }
     },
     { timestamps: true },
 )

@@ -12,8 +12,14 @@ router.delete('/game/:id', GameCtrl.deleteGame)
 router.get('/game/:id', GameCtrl.getGameById)
 router.get('/game/:id/start', GameCtrl.startGameById)
 router.get('/games', GameCtrl.getGames)
+
+router.put('/player/:id', PlayerCtrl.updatePlayer)
+router.get('/player/:id', PlayerCtrl.getPlayerById)
 router.get('/players', PlayerCtrl.getPlayers)
+router.delete('/player/:id', PlayerCtrl.deletePlayer)
 router.get('/players_for_room/:room_code', PlayerCtrl.getPlayersForRoom)
+
+router.get('/nuke', GameCtrl.deleteEverything)
 
 
 

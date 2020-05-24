@@ -53,6 +53,7 @@ updatePlayer = async (req, res) => {
             })
         }
         player.name = body.name
+        player.answers = body.answers
         player
             .save()
             .then(() => {

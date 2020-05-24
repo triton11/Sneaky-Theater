@@ -15,6 +15,7 @@ createGame = (req, res) => {
     const game = new Game(body)
     game.state = {}
     game.questions = {}
+    game.characters = {}
 
     if (!game) {
         return res.status(400).json({ success: false, error: err })
@@ -57,39 +58,48 @@ updateGame = async (req, res) => {
 
         game.code = body.code
 
-        const player = new Player({name: req.body.name, code: req.body.code})
+        Player.findOne({ name: req.body.name }, (err, p) => {
+            if (p !== null) {
+                return res.status(200).json({
+                    success: true,
+                    id: game._id,
+                    message: 'Game updated!',
+                })
+            } else {
+                const player = new Player({name: req.body.name, code: req.body.code, character: ""})
+                if (!player) {
+                    return res.status(400).json({ success: false, error: err })
+                }
 
-        if (!player) {
-            return res.status(400).json({ success: false, error: err })
-        }
-
-        player
-            .save()
-            .then(() => {
-                game.players.push(player._id)
-                game
+                player
                     .save()
                     .then(() => {
-                        return res.status(200).json({
-                            success: true,
-                            id: game._id,
-                            message: 'Game updated!',
-                        })
+                        game.players.push(player._id)
+                        game
+                            .save()
+                            .then(() => {
+                                return res.status(200).json({
+                                    success: true,
+                                    id: game._id,
+                                    message: 'Game updated!',
+                                })
+                            })
+                            .catch(error => {
+                                return res.status(404).json({
+                                    error,
+                                    message: 'Game not updated!',
+                                })
+                            })
+                        
                     })
                     .catch(error => {
-                        return res.status(404).json({
+                        return res.status(400).json({
                             error,
-                            message: 'Game not updated!',
+                            message: 'Player not created!',
                         })
                     })
-                
-            })
-            .catch(error => {
-                return res.status(400).json({
-                    error,
-                    message: 'Player not created!',
-                })
-            })
+            }
+        })
     })
 }
 
@@ -104,6 +114,14 @@ deleteGame = async (req, res) => {
                 .status(404)
                 .json({ success: false, error: `Game not found` })
         }
+
+        game.players.forEach(player_id =>
+            Player.findOneAndDelete({ _id: player_id }, (err, player) => {
+                if (err) {
+                    return res.status(400).json({ success: false, error: err })
+                }
+            })
+        )
 
         return res.status(200).json({ success: true, data: game })
     }).catch(err => console.log(err))
@@ -129,7 +147,6 @@ startGameById = async (req, res) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
         }
-
         if (!game) {
             return res
                 .status(404)
@@ -145,11 +162,26 @@ startGameById = async (req, res) => {
         game
             .save()
             .then(() => {
-                return res.status(200).json({
-                    success: true,
-                    data: game,
-                    message: 'Game updated!',
-                })
+                game.players.forEach(player_id =>
+                    Player.findOne({ _id: player_id }, (err, player) => {
+                        player.character = game.characters[Math.floor(Math.random()*game.characters.length)]
+                        player
+                            .save()
+                            .then(() => {
+                                return res.status(200).json({
+                                    success: true,
+                                    id: game,
+                                    message: 'Game updated!',
+                                })
+                            })
+                            .catch(error => {
+                                return res.status(404).json({
+                                    error,
+                                    message: 'Game not updated!',
+                                })
+                            })
+                    })
+                )
             })
             .catch(error => {
                 return res.status(404).json({
@@ -175,6 +207,23 @@ getGames = async (req, res) => {
     }).catch(err => console.log(err))
 }
 
+deleteEverything = async (req, res) => {
+    await Game.find({}, (err, games) => {
+        games.forEach(game => {
+            Game.findOneAndDelete({ _id: game.id }, (c,d) => {
+            })
+        })
+        Player.find({}, (err, players) => {
+
+            players.forEach(player => {
+                Player.findOneAndDelete({ _id: player.id }, (a,b) => {
+                })
+            })
+        })
+        return res.status(200).json({ success: true, data: games })
+    }).catch(err => console.log(err))
+}
+
 module.exports = {
     createGame,
     updateGame,
@@ -182,4 +231,5 @@ module.exports = {
     deleteGame,
     getGames,
     getGameById,
+    deleteEverything
 }
