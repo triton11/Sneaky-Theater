@@ -45,7 +45,7 @@ class GamesShow extends Component {
         super(props)
         this.state = {
             game_id: this.props.match.params.id,
-            round: '',
+            round: 0,
             code: '',
             name: '',
             movie: '',
@@ -58,7 +58,13 @@ class GamesShow extends Component {
             questions: [],
             answers: [],
             isLoading: false,
+            seconds: 0,
+            currentQ: 0,
         }
+        this.timer = 0
+        this.gameTimer = 0
+        this.startTimer = this.startTimer.bind(this);
+        this.countDown = this.countDown.bind(this);
     }
 
     handleChangeInputName = async event => {
@@ -76,7 +82,7 @@ class GamesShow extends Component {
                 this.setState({
                     character: player_details.data.data.character,
                     player_id: player._id,
-                    answers: player_details.data.data.answers,
+                    // answers: player_details.data.data.answers,
                 })
             })
         } else {
@@ -91,16 +97,15 @@ class GamesShow extends Component {
                 name: this.state.name
             })
             this.getPlayerById()
+
         })
     }
 
     handleUpdateGame = async () => {
-        const { game_id, code, name } = this.state
-        const payload = { code, name }
+        const { game_id, code, name, round } = this.state
+        const payload = { code, name, round }
 
         await api.updateGameById(game_id, payload).then(res => {
-            window.alert(`Game joined successfully`)
-            this.getPlayers()
             this.state.joined = true
         })
     }
@@ -121,8 +126,7 @@ class GamesShow extends Component {
                 movie: res.data.data.state["movie"],
                 questions: res.data.data.questions,
                 spy: res.data.data.state["spy"]
-            })
-            this.getPlayers()
+            })            
         })
     }
 
@@ -135,9 +139,45 @@ class GamesShow extends Component {
         })
     }
 
-    componentDidMount = async () => {
-        this.setState({ isLoading: true })
+    startTimer() {
+        if (this.timer == 0) {
+            this.setState({
+                seconds: 120
+            })
+            this.timer = setInterval(this.countDown, 1000);
+        }
+    }
 
+    countDown() {
+        // Remove one second, set state so a re-render happens.
+        let seconds = this.state.seconds - 1;
+        // Check if we're at zero.
+        this.setState({
+            seconds: seconds,
+        });
+        if (seconds == 0) {
+            this.setState({
+                round: 2
+            })
+            clearInterval(this.timer);
+            this.handleUpdateGame();
+        }
+    }
+
+    showNextQuestion = async () => {
+        let oldQ = this.state.currentQ
+        if (oldQ === 2) {
+            this.setState({
+                currentQ: 0,
+            });
+        } else {
+            this.setState({
+                currentQ: oldQ + 1,
+            });
+        }
+    }
+
+    getGameState = async () => {
         await api.getGameById(this.props.match.params.id).then(game => {
             this.setState({
                 code: game.data.data.code,
@@ -151,10 +191,20 @@ class GamesShow extends Component {
         })
     }
 
-    render() {
-        const { round, code, name, player_id, players, movie, character, spy, joined, questions, answers, isLoading } = this.state
+    componentDidMount = async () => {
+        this.setState({ isLoading: true })
+        this.getGameState()
+        this.gameTimer = setInterval(this.getGameState, 5000);
+    }
 
-        const columns = [
+    componentWillUnmount() {
+        clearInterval(this.gameTimer)
+    }
+
+    render() {
+        const { round, code, name, player_id, players, movie, character, spy, joined, questions, answers, isLoading, seconds, currentQ } = this.state
+
+        let columns = [
             {
                 Header: 'Name',
                 accessor: 'name',
@@ -179,30 +229,54 @@ class GamesShow extends Component {
                 </div>
         }
 
-        const isStarted = round > 0
         let mainView;
-        if (isStarted && joined === true) {
+
+        console.log(questions)
+        console.log(currentQ)
+
+        if (joined === true && round == 1) {
+            this.startTimer()
+            
             const listQuestions = questions.map((q, index) =>
                 <li key={index}>
                     {q}
                     <br></br>
                     <InputText
                         type="text"
-                        value={answers[index]}
+                        value={answers[index] || ''}
                         onChange={this.handleQuestionInput.bind(this, index)}
                     />
                 </li>
             );
-            const playerInfo = <div><Label>The movie is: {movie}</Label> <Label>You are: {character}</Label></div>
+            const playerInfo = <div><Label>The movie is: {movie}</Label><br></br><Label>You are: {character}</Label></div>
             const movieOrSpy = (spy === player_id) ? <Label>You are the Spy</Label> : playerInfo
             mainView = 
                 <div>
                     {movieOrSpy}
+                    <br></br>
+                    You have {seconds} seconds remaining!
                     <div>
                         Questions:
                         {listQuestions}
                         <Button onClick={this.submitAnswers}>Submit Answers</Button>
                     </div>
+                </div>
+        } else if (joined === true && round == 2) {
+            columns = [
+                {
+                    Header: 'Name',
+                    accessor: 'name',
+                    width: '200',
+                },
+                {
+                    Header: questions[currentQ],
+                    accessor: `answers[${currentQ}]`,
+                    width:'400'
+                }
+            ]
+            mainView =
+                <div>
+                    <Button onClick={this.showNextQuestion}>Next Question</Button>
                 </div>
         } else {
             mainView =
@@ -227,6 +301,7 @@ class GamesShow extends Component {
                     loading={isLoading}
                     defaultPageSize={10}
                     minRows={0}
+                    width='100%'
                 />
             </Wrapper>
         )
