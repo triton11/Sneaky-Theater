@@ -1,63 +1,69 @@
 const Game = require('../models/game-model')
 const Player = require('../models/player-model')
 
-const movie_list = [
-    ["Harry Potter", "Ron", "Harry", "Hagrid", "Hermione", "Dumbledore", "Voldemort"],
-    ["Lord of the Rings", "Frodo", "Gandalf", "Legolas", "Saruman", "Golum", "Gimli"],
-    ["Avengers", "Thanos", "Captain America", "Iron Man", "Black Widow", "Thor", "Hulk"],
-    ["Titanic", "Jack", "Rose", "Iceburg", "The Captain", "Brock Lovett", "Rose's Fiance"],
+const animated_movie_list = [
     ["Peter Pan", "Hook", "Peter Pan", "Tinkerbell", "Wendy", "A Lost Boy", "Alligator"],
-    ["Star Wars", "Darth Vader", "Princess Leia", "Luke Skywalker", "Chewbacca", "Han Solo", "Yoda"],
-    // ["Star Trek", "Captain Kirk", "Spock", ],
     ["Frozen", "Elsa", "Anna", "Olaf", "Christoff", "Hans", "Christoff's Reindeer"],
     ["Lion King", "Simba", "Nala", "Mufasa", "Scar", "Pumba", "Timon"],
     ["The Incredibles", "Mr. Incredible", "Mrs. Incredible", "Dash", "Violet", "Jack Jack", "Syndrome"],
-    // ["Iron Man", "Iron Man", ],
-    ["Transformers", "Bumblebee", "Optimus Prime", "Megatron", "Shia Lebouf", "Starscream", "Megan Fox"],
     ["Toy Story", "Buzz Lightyear", "Andy", "Woody", "Mr. Potato Head", "Jessie", "Slinky Dog"],
-    ["Pirates of the Caribbean", "Jack Sparrow", "Elizabeth Swan", "Will Turner", "Davy Jones", "Hector Barbosa", "The Ship"],
     ["Alladin", "Jaffar", "Alladin", "Genie", "Jasmine", "Abu", "The Sultan"],
     ["Despicable Me", "Gru", "Bob the minion", "Agnes", "Margo", "Edith", "Vector"],
     ["Finding Nemo", "Nemo", "Dory", "Marlin", "Mr. Ray", "A shark", "The dentist"],
     ["Alice in Wonderland", "Alice", "The Mad Hatter", "The Red Queen", "The Cheshire Cat", "White Rabbit", "Tweedledum"],
+    ["Monsters Inc", "Boo", "Mike Wazowski", "James P. Sullivan", "Randall Boggs", "Roz", "A Door"],
+]
+
+const classic_movie_list = [
+    ["Titanic", "Jack", "Rose", "Iceburg", "The Captain", "Brock Lovett", "Rose's Fiance"],
     ["Home Alone", "Kevin McCalister", "Marv", "Harry", "Megan McCalister", "The tarantula", "Buzz McCalister"],
-    // ["Indiana Jones", ""],
     ["The Wizard of Oz", "Dorothy", "The Tin Man", "The Scarecrow", "The Cowardly Lion", "Toto", "The Wicked Witch"],
     ["Forest Gump", "Forest Gump", "Bubba", "Jenny", "Lt. Dan", "Drill Sargent", "A black panther"],
-    // ["Jaws"],
     ["Elf", "Buddy", "Santa", "Jovie", "Walter", "Michael", "Miles Finch"],
-    ["Monsters Inc", "Boo", "Mike Wazowski", "James P. Sullivan", "Randall Boggs", "Roz", "A Door"],
     ["Back to the Future", "Doc", "Marty McFly", "Jennifer Parker", "Biff", "Lorraine McFly", "George McFly"],
     ["Mean Girls", "Regina George", "Karen Smith", "Gretchen Wieners", "Cady Heron", "Janis Ian", "Ms. Norbury"],
     ["Romeo and Juliet", "Romeo", "Juliet", "Mercutio", "Friar Lawrence", "The Montagues", "The Capulets"],
-    // ["Terminator", ],
     ["The Matrix", "Neo", "Morpheus", "the Oracle", "Trinity", "Cypher", "Agents of the Matrix"],
-    ["Spy Kids", "Carmen Cortez", "Juni Cortez", "Machete", "Donagon Giggles", "The Transmooker", "The Guy"],
-    ["Hunger Games", "Catniss", "Haymitch", "Peeta", "Gayle", "Rue", "Effie Trinket"],
     ["Legally Blond", "Ella Woods", "Warner Huntington III", "Vivian Kensington", "Paulette Bonafonte", "The UPS Guy", "Moonie"],
+]
+
+const adventure_movie_list = [
+    ["Harry Potter", "Ron", "Harry", "Hagrid", "Hermione", "Dumbledore", "Voldemort"],
+    ["Lord of the Rings", "Frodo", "Gandalf", "Legolas", "Saruman", "Golum", "Gimli"],
+    ["Star Wars", "Darth Vader", "Princess Leia", "Luke Skywalker", "Chewbacca", "Han Solo", "Yoda"],
+    ["Transformers", "Bumblebee", "Optimus Prime", "Megatron", "Shia Lebouf", "Starscream", "Megan Fox"],
+    ["Star Trek", "Captain Kirk", "Spock", "A Klingon", "Scotty", "Nyota Uhura", "Sulu"],
+    ["Pirates of the Caribbean", "Jack Sparrow", "Elizabeth Swan", "Will Turner", "Davy Jones", "Hector Barbosa", "The Ship"],
+    ["Hunger Games", "Catniss", "Haymitch", "Peeta", "Gayle", "Rue", "Effie Trinket"],
+    ["Avengers", "Thanos", "Captain America", "Iron Man", "Black Widow", "Thor", "Hulk"],
+    ["Spy Kids", "Carmen Cortez", "Juni Cortez", "Machete", "Donagon Giggles", "The Transmooker", "The Guy"],
     ["Captain Marvel", "Captain Marvel", "Nick Fury", "Talos", "Korath", "Ronan the Accuser", "Phil Coulson"],
 ]
 
 const question_list_1 = [
-    "Where do you live?",
-    "Where do you shop?",
-    "Where have you travelled?",
-    "What is your goal?",
-    "What is your job?"
+    "How would you kill someone, y'know, if you HAD to?",
+    "What is your weapon of choice?",
+    "Whats your favorite sport and why?",
+    "If you were a lawyer, how would you win a case?",
+    "Why do people fear you?",
+    "How do you deal with haters?"
 ]
 const question_list_2 = [
-    "What do you want?",
-    "What do you love?",
-    "What makes you happy?",
-    "What is the best thing you've done?",
-    "What is the best thing thats happened to you?",
+    "What do you miss when you have to travel?",
+    "How do you show affection in a relationship?",
+    "How do you entertain your friends?",
+    "What do people admire about you?",
+    "What do you like to do in your free time?",
+    "What do you do to relax?"
 ]
 
 const question_list_3 = [
-    "What do you fear?",
-    "What makes you sad?",
-    "What is the worst thing you've done?",
-    "What is the worst thing thats happened to you?",
+    "Where is your favorite place to visit?",
+    "What is one thing you can't live without?",
+    "What was the craziest thing that happened in your past?",
+    "What do you want to change about your home?",
+    "Whats in your purse?",
+    "How do you make money?"
 ]
 createGame = (req, res) => {
     const body = req.body
@@ -68,7 +74,6 @@ createGame = (req, res) => {
             error: 'You must provide a Game',
         })
     }
-    console.log(body)
 
     const game = new Game(body)
     game.state = {}
@@ -121,8 +126,6 @@ updateGame = async (req, res) => {
                 game
                     .save()
                     .then(() => {
-                        console.log(body.round)
-                        console.log(game.state)
                         return res.status(200).json({
                             success: true,
                             id: game._id,
@@ -130,7 +133,6 @@ updateGame = async (req, res) => {
                         })
                     })
                     .catch(error => {
-                        console.log(game.state)
                         return res.status(404).json({
                             error,
                             message: 'Game not updated!',
@@ -186,15 +188,21 @@ deleteGame = async (req, res) => {
                 .json({ success: false, error: `Game not found` })
         }
 
-        game.players.forEach(player_id =>
-            Player.findOneAndDelete({ _id: player_id }, (err, player) => {
-                if (err) {
-                    return res.status(400).json({ success: false, error: err })
-                }
-            })
-        )
+        Player.remove({ code: game.code }, (err, player) => {
+            if (err) {
+                return res.status(400).json({ success: false, error: err })
+            } else {
+                return res.status(200).json({ success: true, data: game })
+            }
+        })
 
-        return res.status(200).json({ success: true, data: game })
+        // game.players.forEach(player_id =>
+        //     Player.findOneAndDelete({ _id: player_id }, (err, player) => {
+        //         if (err) {
+        //             return res.status(400).json({ success: false, error: err })
+        //         }
+        //     })
+        // )
     }).catch(err => console.log(err))
 }
 
@@ -223,12 +231,26 @@ startGameById = async (req, res) => {
                 .status(404)
                 .json({ success: false, error: `Game not found` })
         }
-        const movie = movie_list[Math.floor(Math.random()*movie_list.length)]
+
+        let movie = undefined
+
+        if (game.theme === "animated") {
+            movie = animated_movie_list[Math.floor(Math.random()*animated_movie_list.length)]
+            game.movies = animated_movie_list.map(m => m[0])
+        } else if (game.theme === "adventure") {
+            movie = adventure_movie_list[Math.floor(Math.random()*adventure_movie_list.length)]
+            game.movies = adventure_movie_list.map(m => m[0])
+        } else if (game.theme === "classic") {
+            movie = classic_movie_list[Math.floor(Math.random()*classic_movie_list.length)]
+            game.movies = classic_movie_list.map(m => m[0])
+        }
         game.state = { 
             "round": 1, 
             "spy": game.players[Math.floor(Math.random()*game.players.length)],
             "movie": movie[0]
         }
+
+        game.start_time = Date.now()
 
         game.questions = [
             question_list_1[Math.floor(Math.random()*question_list_1.length)],

@@ -15,7 +15,7 @@ const Title = styled.h1.attrs({
 const Wrapper = styled.div.attrs({
     className: 'form-group',
 })`
-    margin: 0 30px;
+    margin: 10px 50px 10px 50px;
 `
 
 const Label = styled.label`
@@ -49,8 +49,10 @@ class GamesShow extends Component {
             code: '',
             name: '',
             movie: '',
+            movies: [],
             character: '',
             player_id: '',
+            start_time: new Date(),
             spy: '',
             joined: false,
             players: [],
@@ -60,8 +62,9 @@ class GamesShow extends Component {
             isLoading: false,
             seconds: 0,
             currentQ: 0,
+            cur_time: new Date()
         }
-        this.timer = 0
+        this.timer = undefined
         this.gameTimer = 0
         this.startTimer = this.startTimer.bind(this);
         this.countDown = this.countDown.bind(this);
@@ -125,6 +128,7 @@ class GamesShow extends Component {
                 round: res.data.data.state["round"],
                 movie: res.data.data.state["movie"],
                 questions: res.data.data.questions,
+                start_time: new Date(res.data.data.start_time),
                 spy: res.data.data.state["spy"]
             })            
         })
@@ -140,9 +144,9 @@ class GamesShow extends Component {
     }
 
     startTimer() {
-        if (this.timer == 0) {
+        if (this.timer == undefined) {
             this.setState({
-                seconds: 120
+                seconds: 120 - Math.round((this.state.cur_time.valueOf() - this.state.start_time.valueOf())/1000.0)
             })
             this.timer = setInterval(this.countDown, 1000);
         }
@@ -155,7 +159,7 @@ class GamesShow extends Component {
         this.setState({
             seconds: seconds,
         });
-        if (seconds == 0) {
+        if (seconds < -5) {
             this.setState({
                 round: 2
             })
@@ -182,10 +186,13 @@ class GamesShow extends Component {
             this.setState({
                 code: game.data.data.code,
                 round: game.data.data.state["round"],
+                start_time: new Date(game.data.data.start_time),
                 movie: game.data.data.state["movie"],
                 questions: game.data.data.questions,
                 spy: game.data.data.state["spy"],
+                movies: game.data.data.movies,
                 isLoading: false,
+                cur_time: new Date()
             })
             this.getPlayers();
         })
@@ -202,7 +209,7 @@ class GamesShow extends Component {
     }
 
     render() {
-        const { round, code, name, player_id, players, movie, character, spy, joined, questions, answers, isLoading, seconds, currentQ } = this.state
+        const { round, code, name, player_id, start_time, players, movie, movies, character, spy, joined, questions, answers, isLoading, seconds, currentQ, cur_time } = this.state
 
         let columns = [
             {
@@ -231,9 +238,6 @@ class GamesShow extends Component {
 
         let mainView;
 
-        console.log(questions)
-        console.log(currentQ)
-
         if (joined === true && round == 1) {
             this.startTimer()
             
@@ -248,13 +252,24 @@ class GamesShow extends Component {
                     />
                 </li>
             );
+            const secondsOrZero = (seconds < 0) ? 0 : seconds;
+            const listMovies = movies.map((m, index) =>
+                <div key={index}>
+                    <input type="checkbox"></input> {m}
+                </div>
+            );
+            const spyInfo = 
+                <div>
+                    <Label>You are the spy! Here are the possible movies:</Label>
+                    {listMovies}
+                </div>
             const playerInfo = <div><Label>The movie is: {movie}</Label><br></br><Label>You are: {character}</Label></div>
-            const movieOrSpy = (spy === player_id) ? <Label>You are the Spy</Label> : playerInfo
+            const movieOrSpy = (spy === player_id) ? spyInfo : playerInfo
             mainView = 
                 <div>
                     {movieOrSpy}
                     <br></br>
-                    You have {seconds} seconds remaining!
+                    You have {secondsOrZero} seconds remaining!
                     <div>
                         Questions:
                         {listQuestions}
@@ -281,15 +296,23 @@ class GamesShow extends Component {
         } else {
             mainView =
                 <div>
-                    <CancelButton href={'/games/list'}>Cancel</CancelButton>
-                    <Button onClick={this.handleStartGame}>Start Game</Button>
                 </div>
+        }
+
+        let adminView;
+
+        if (!(players[0] === undefined)) {
+            if (players[0]._id === player_id) {
+                adminView = 
+                    <div>
+                        <CancelButton href={'/games/list'}>Cancel</CancelButton>
+                        <Button onClick={this.handleStartGame}>Start Game</Button>
+                    </div>
+            }
         }
         return (
             <Wrapper>
-                <Title>Game Room</Title>
-
-                <Label>Code: {code}</Label>
+                <Title>Room {code}</Title>
 
                 {joinView}
 
@@ -303,6 +326,8 @@ class GamesShow extends Component {
                     minRows={0}
                     width='100%'
                 />
+
+                {adminView}
             </Wrapper>
         )
     }

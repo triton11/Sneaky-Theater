@@ -45,7 +45,7 @@ class ShowGame extends Component {
     }
 
     render() {
-        return <Show onClick={this.showGame}>Show</Show>
+        return <Show onClick={this.showGame}>Join</Show>
     }
 }
 
@@ -95,10 +95,6 @@ class GamesList extends Component {
 
         const columns = [
             {
-                Header: 'ID',
-                accessor: '_id',
-            },
-            {
                 Header: 'Code',
                 accessor: 'code',
             },
@@ -109,17 +105,6 @@ class GamesList extends Component {
                     return (
                         <span>
                             <DeleteGame id={props.original._id} />
-                        </span>
-                    )
-                },
-            },
-            {
-                Header: '',
-                accessor: '',
-                Cell: function(props) {
-                    return (
-                        <span>
-                            <UpdateGame id={props.original._id} />
                         </span>
                     )
                 },

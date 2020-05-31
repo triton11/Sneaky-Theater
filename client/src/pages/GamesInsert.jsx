@@ -41,6 +41,7 @@ class GamesInsert extends Component {
 
         this.state = {
             code: '',
+            theme: ''
         }
     }
 
@@ -51,10 +52,16 @@ class GamesInsert extends Component {
 
         this.setState({ code })
     }
+    
+    handleChangeTheme = async event =>{
+        this.setState({theme: event.target.value});
+    }
 
     handleIncludeGame = async () => {
-        const { code } = this.state
-        const payload = { code }
+        const { code, theme } = this.state
+        console.log(theme)
+
+        const payload = { code, theme }
 
         await api.insertGame(payload).then(res => {
             window.alert(`Game inserted successfully`)
@@ -76,6 +83,14 @@ class GamesInsert extends Component {
                     value={code}
                     onChange={this.handleChangeInputCode}
                 />
+
+                <Label>Theme: </Label>
+                <select value={this.state.theme} onChange={this.handleChangeTheme}>
+                    <option value="classic">classic</option>
+                    <option value="animated">animated</option>
+                    <option value="adventure">adventure</option>
+                </select>
+                <br></br>
 
                 <Button onClick={this.handleIncludeGame}>Add Game</Button>
                 <CancelButton href={'/games/list'}>Cancel</CancelButton>
