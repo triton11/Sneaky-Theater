@@ -66,8 +66,8 @@ class GamesShow extends Component {
         }
         this.timer = undefined
         this.gameTimer = 0
-        this.startTimer = this.startTimer.bind(this);
-        this.countDown = this.countDown.bind(this);
+        // this.startTimer = this.startTimer.bind(this);
+        // this.countDown = this.countDown.bind(this);
     }
 
     handleChangeInputName = async event => {
@@ -105,8 +105,18 @@ class GamesShow extends Component {
     }
 
     handleUpdateGame = async () => {
-        const { game_id, code, name, round } = this.state
+        const { game_id, code, name } = this.state
+        const round = 2
         const payload = { code, name, round }
+
+        await api.updateGameById(game_id, payload).then(res => {
+            this.state.joined = true
+        })
+    }
+
+    handleJoinGame = async () => {
+        const { game_id, code, name } = this.state
+        const payload = { code, name }
 
         await api.updateGameById(game_id, payload).then(res => {
             this.state.joined = true
@@ -143,30 +153,30 @@ class GamesShow extends Component {
         })
     }
 
-    startTimer() {
-        if (this.timer == undefined) {
-            this.setState({
-                seconds: 120 - Math.round((this.state.cur_time.valueOf() - this.state.start_time.valueOf())/1000.0)
-            })
-            this.timer = setInterval(this.countDown, 1000);
-        }
-    }
+    // startTimer() {
+    //     if (this.timer == undefined) {
+    //         this.setState({
+    //             seconds: 120 - Math.round((this.state.cur_time.valueOf() - this.state.start_time.valueOf())/1000.0)
+    //         })
+    //         this.timer = setInterval(this.countDown, 1000);
+    //     }
+    // }
 
-    countDown() {
-        // Remove one second, set state so a re-render happens.
-        let seconds = this.state.seconds - 1;
-        // Check if we're at zero.
-        this.setState({
-            seconds: seconds,
-        });
-        if (seconds < -5) {
-            this.setState({
-                round: 2
-            })
-            clearInterval(this.timer);
-            this.handleUpdateGame();
-        }
-    }
+    // countDown() {
+    //     // Remove one second, set state so a re-render happens.
+    //     let seconds = this.state.seconds - 1;
+    //     // Check if we're at zero.
+    //     this.setState({
+    //         seconds: seconds,
+    //     });
+    //     if (seconds < -5) {
+    //         this.setState({
+    //             round: 2
+    //         })
+    //         clearInterval(this.timer);
+    //         this.handleUpdateGame();
+    //     }
+    // }
 
     showNextQuestion = async () => {
         let oldQ = this.state.currentQ
@@ -227,7 +237,7 @@ class GamesShow extends Component {
                         value={name}
                         onChange={this.handleChangeInputName}
                     />
-                    <Button onClick={this.handleUpdateGame}>Join Game</Button>
+                    <Button onClick={this.handleJoinGame}>Join Game</Button>
                 </div>
         } else {
             joinView = 
@@ -238,8 +248,23 @@ class GamesShow extends Component {
 
         let mainView;
 
+        const listMovies = movies.map((m, index) =>
+                <div key={index}>
+                    <input type="checkbox"></input> {m}
+                </div>
+            );
+
+        const spyInfo = 
+                <div>
+                    <Label>You are the spy! Here are the possible movies:</Label>
+                    {listMovies}
+                </div>
+        const playerInfo = <div><Label>The movie is: {movie}</Label><br></br><Label>You are: {character}</Label></div>
+
+        const movieOrSpy = (spy === player_id) ? spyInfo : playerInfo
+
         if (joined === true && round == 1) {
-            this.startTimer()
+            // this.startTimer()
             
             const listQuestions = questions.map((q, index) =>
                 <li key={index}>
@@ -253,23 +278,10 @@ class GamesShow extends Component {
                 </li>
             );
             const secondsOrZero = (seconds < 0) ? 0 : seconds;
-            const listMovies = movies.map((m, index) =>
-                <div key={index}>
-                    <input type="checkbox"></input> {m}
-                </div>
-            );
-            const spyInfo = 
-                <div>
-                    <Label>You are the spy! Here are the possible movies:</Label>
-                    {listMovies}
-                </div>
-            const playerInfo = <div><Label>The movie is: {movie}</Label><br></br><Label>You are: {character}</Label></div>
-            const movieOrSpy = (spy === player_id) ? spyInfo : playerInfo
+        
             mainView = 
                 <div>
                     {movieOrSpy}
-                    <br></br>
-                    You have {secondsOrZero} seconds remaining!
                     <div>
                         Questions:
                         {listQuestions}
@@ -291,6 +303,7 @@ class GamesShow extends Component {
             ]
             mainView =
                 <div>
+                    {movieOrSpy}
                     <Button onClick={this.showNextQuestion}>Next Question</Button>
                 </div>
         } else {
@@ -307,6 +320,7 @@ class GamesShow extends Component {
                     <div>
                         <CancelButton href={'/games/list'}>Cancel</CancelButton>
                         <Button onClick={this.handleStartGame}>Start Game</Button>
+                        <Button onClick={this.handleUpdateGame}>Next Round</Button>
                     </div>
             }
         }

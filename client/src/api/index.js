@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-    baseURL: 'http://192.168.0.8:3000/api',
+    baseURL: 'http://192.168.0.12:3000/api',
 })
 
 export const insertGame = payload => api.post(`/game`, payload)

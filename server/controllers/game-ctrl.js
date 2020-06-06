@@ -119,7 +119,9 @@ updateGame = async (req, res) => {
             })
         }
 
-        game.state.set('round', body.round)
+        if (body.round !== undefined) {
+            game.state.set('round', body.round)
+        }
 
         Player.findOne({ name: req.body.name, code: body.code }, (err, p) => {
             if (p !== null) {
