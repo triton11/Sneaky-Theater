@@ -12,6 +12,14 @@ const animated_movie_list = [
     ["Finding Nemo", "Nemo", "Dory", "Marlin", "Mr. Ray", "A shark", "The dentist"],
     ["Alice in Wonderland", "Alice", "The Mad Hatter", "The Red Queen", "The Cheshire Cat", "White Rabbit", "Tweedledum"],
     ["Monsters Inc", "Boo", "Mike Wazowski", "James P. Sullivan", "Randall Boggs", "Roz", "A Door"],
+    ["The Land Before Time", "Ducky", "Littlefoot", "Sharptooth", "Petrie", "Cera", "Chomper"],
+    ["Snow White and the Seven Dwarves", "Snow White", "Evil Queen", "Magic Mirror", "Dopey", "Grumpy", "Doc"],
+    ["Wreck-it Ralph", "Ralph", "Fix-it Felix", "Vanellope von Schweetz", "Sergeant Calhoun", "King Candy / Turbo", "Cy-Bug"],
+    ["Inside Out", "Riley", "Joy", "Anger", "Dad", "Mom", "Bing Bong"],
+    ["Shrek", "Shrek", "Donkey", "Fiona", "Puss in Boots", "Dragon", "Lord Farquaad"],
+    ["Moana", "Moana", "Maui", "Tamatoa", "Sina", "Hei Hei the Rooster", "Chief Tui"],
+    ["Kung Fu Panda", "Po", "Tigress", "Master Shifu", "Oogwa"],
+    ["Madagascar", "Alex the Lion", "Marty the Zebra", "Melman the Giraffe", "Jullian the Lemur", "Gloria the Hippo", "Skipper"]
 ]
 
 const classic_movie_list = [
@@ -23,21 +31,33 @@ const classic_movie_list = [
     ["Back to the Future", "Doc", "Marty McFly", "Jennifer Parker", "Biff", "Lorraine McFly", "George McFly"],
     ["Mean Girls", "Regina George", "Karen Smith", "Gretchen Wieners", "Cady Heron", "Janis Ian", "Ms. Norbury"],
     ["Romeo and Juliet", "Romeo", "Juliet", "Mercutio", "Friar Lawrence", "The Montagues", "The Capulets"],
-    ["The Matrix", "Neo", "Morpheus", "the Oracle", "Trinity", "Cypher", "Agents of the Matrix"],
     ["Legally Blond", "Ella Woods", "Warner Huntington III", "Vivian Kensington", "Paulette Bonafonte", "The UPS Guy", "Moonie"],
+    ["Willy Wonka and the Chocolate Factory"],
+    ["Oceans 11"],
+    ["Grease"],
+    ["Jumanji"],
+
 ]
 
 const adventure_movie_list = [
     ["Harry Potter", "Ron", "Harry", "Hagrid", "Hermione", "Dumbledore", "Voldemort"],
     ["Lord of the Rings", "Frodo", "Gandalf", "Legolas", "Saruman", "Golum", "Gimli"],
-    ["Star Wars", "Darth Vader", "Princess Leia", "Luke Skywalker", "Chewbacca", "Han Solo", "Yoda"],
+    ["Star Wars 4-6", "Darth Vader", "Princess Leia", "Luke Skywalker", "Chewbacca", "Han Solo", "Boba Fett"],
+    ["Star Wars 1-3", "Anakin Skywalker", "Count Dooku", "Palpatine", "Jar Jar Binks", "Darth Maul", "ObiWan Kenobi"],
     ["Transformers", "Bumblebee", "Optimus Prime", "Megatron", "Shia Lebouf", "Starscream", "Megan Fox"],
     ["Star Trek", "Captain Kirk", "Spock", "A Klingon", "Scotty", "Nyota Uhura", "Sulu"],
     ["Pirates of the Caribbean", "Jack Sparrow", "Elizabeth Swan", "Will Turner", "Davy Jones", "Hector Barbosa", "The Ship"],
     ["Hunger Games", "Catniss", "Haymitch", "Peeta", "Gayle", "Rue", "Effie Trinket"],
     ["Avengers", "Thanos", "Captain America", "Iron Man", "Black Widow", "Thor", "Hulk"],
     ["Spy Kids", "Carmen Cortez", "Juni Cortez", "Machete", "Donagon Giggles", "The Transmooker", "The Guy"],
-    ["Captain Marvel", "Captain Marvel", "Nick Fury", "Talos", "Korath", "Ronan the Accuser", "Phil Coulson"],
+    ["Wonder Woman", "Wonder Woman", "Ares God of War", "Steve Trevor", "The Cheetah", "Doctor Poison", "An Amazonian"],
+    ["Black Panther", "Black Panther", "Killmonger", "Shuri", "Okoye", "Klaue", "M'Baku"],
+    ["Spider Man", "Spider Man", "Docter Octopus", "Green Goblin", "Mary Jane", "Venom", "Aunt May"],
+    ["Batman", "Batman", "Alfred", "Catwoman", "The Joker", "Bane", "Robin"],
+    ["Indiana Jones", "Indiana Jones", "Sallah", "Short Round", "Marion Ravenwood", "A Nazi", "An Alien"],
+    ["The Matrix", "Neo", "Morpheus", "the Oracle", "Trinity", "Cypher", "Agents of the Matrix"],
+    ["Terminator", "Terminator", "T-1000", "Sarah Connor", "Skynet", "Kyle Reese", "John Connor"],
+    ["Gaurdians of the Galaxy", "Peter Quill", "Rocket Raccoon", "Groot", "Drax the Destroyer", "Nebula", "Gamora"]
 ]
 
 const question_list_1 = [
@@ -263,9 +283,12 @@ startGameById = async (req, res) => {
         game
             .save()
             .then(() => {
+                let randomStartingIndex;
+                randomStartingIndex = Math.floor(Math.random()*game.characters.length)
                 game.players.forEach(player_id =>
                     Player.findOne({ _id: player_id }, (err, player) => {
-                        player.character = game.characters[Math.floor(Math.random()*game.characters.length)]
+                        player.character = game.characters[randomStartingIndex % game.characters.length]
+                        randomStartingIndex += 1
                         player
                             .save()
                             .then(() => {
