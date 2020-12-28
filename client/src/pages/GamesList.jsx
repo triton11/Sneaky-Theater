@@ -24,18 +24,18 @@ const Show = styled.div`
     color: #cc0000;
     cursor: pointer;
 `
+// Not used currently, but maybe in the future.
+// class UpdateGame extends Component {
+//     updateUser = event => {
+//         event.preventDefault()
 
-class UpdateGame extends Component {
-    updateUser = event => {
-        event.preventDefault()
+//         window.location.href = `/games/update/${this.props.id}`
+//     }
 
-        window.location.href = `/games/update/${this.props.id}`
-    }
-
-    render() {
-        return <Update onClick={this.updateUser}>Update</Update>
-    }
-}
+//     render() {
+//         return <Update onClick={this.updateUser}>Update</Update>
+//     }
+// }
 
 class ShowGame extends Component {
     showGame = event => {
@@ -67,7 +67,7 @@ class DeleteGame extends Component {
         return <Delete onClick={this.deleteUser}>Delete</Delete>
     }
 }
-
+// This class displays the index / lists all available games 
 class GamesList extends Component {
     constructor(props) {
         super(props)

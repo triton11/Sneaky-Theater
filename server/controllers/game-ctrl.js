@@ -29,14 +29,18 @@ const classic_movie_list = [
     ["Forest Gump", "Forest Gump", "Bubba", "Jenny", "Lt. Dan", "Drill Sargent", "A black panther"],
     ["Elf", "Buddy", "Santa", "Jovie", "Walter", "Michael", "Miles Finch"],
     ["Back to the Future", "Doc", "Marty McFly", "Jennifer Parker", "Biff", "Lorraine McFly", "George McFly"],
-    ["Mean Girls", "Regina George", "Karen Smith", "Gretchen Wieners", "Cady Heron", "Janis Ian", "Ms. Norbury"],
     ["Romeo and Juliet", "Romeo", "Juliet", "Mercutio", "Friar Lawrence", "The Montagues", "The Capulets"],
     ["Legally Blond", "Ella Woods", "Warner Huntington III", "Vivian Kensington", "Paulette Bonafonte", "The UPS Guy", "Moonie"],
-    ["Willy Wonka and the Chocolate Factory"],
-    ["Oceans 11"],
-    ["Grease"],
-    ["Jumanji"],
-
+    ["Willy Wonka and the Chocolate Factory", "Willy Wonka", "Charlie Bucket", "Veruca Salt", "Grandpa Joe", "An Oompa Loompa", "Augustus Gloop"],
+    ["Grease", "Rizzo", "Danny", "Sandy", "Frenchy", "Kenickie", "Principal McGee"],
+    ["Jumanji", "Alan Parrish", "Sarah Whittle", "Judy Shephard", "Peter Shephard", "Professor Van Pelt", "A Monkey"],
+    ["A Christmas Story", "Ralphie Parker", "Randy Parker", "The Old Man", "The Leg Lamp", "Flick", "Santa Claus"],
+    ["Mary Poppins", "Mary Poppins", "Bert", "George Banks", "Bird Woman", "Jane Banks", "Michael Banks"],
+    ["Spartacus", "Spartacus", "Crassus", "Julius Caeser", "Varinia", "Gracchus", "Draba"],
+    ["The Godfather", "Don Corleone", "Michael Corleone", "Capt. McCluskey", "Sonny Corleone", "Clemenza", "Tom Hagen"],
+    ["The Graduate", "Mrs. Robinson", "Ben Braddock", "Elaine Robinson", "Mr. Robinson", "Carl Smith", "Mrs. Braddock"],
+    ["Jaws", "Brody", "Quint", "Hooper", "The Shark", "Chrissie", "Mayor Vaughn"],
+    ["E.T the Extraterrestrial", "E.T.", "Elliot", "Michael", "Gertie", "Keys", "Mary"],
 ]
 
 const adventure_movie_list = [
@@ -217,14 +221,6 @@ deleteGame = async (req, res) => {
                 return res.status(200).json({ success: true, data: game })
             }
         })
-
-        // game.players.forEach(player_id =>
-        //     Player.findOneAndDelete({ _id: player_id }, (err, player) => {
-        //         if (err) {
-        //             return res.status(400).json({ success: false, error: err })
-        //         }
-        //     })
-        // )
     }).catch(err => console.log(err))
 }
 
@@ -299,10 +295,10 @@ startGameById = async (req, res) => {
                                 })
                             })
                             .catch(error => {
-                                return res.status(404).json({
-                                    error,
-                                    message: 'Game not updated!',
-                                })
+                                // return res.status(404).json({
+                                //     error,
+                                //     message: 'Game not updated!',
+                                // })
                             })
                     })
                 )
