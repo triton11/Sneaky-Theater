@@ -213,7 +213,7 @@ class GamesShow extends Component {
     // including the other player's answers.
     getGameState = async () => {
         await api.getGameById(this.props.match.params.id).then(game => {
-            if (game.data.data.state["round"] != this.state.round) {
+            if (game.data.data.state["round"] !== this.state.round) {
                 this.setState({
                     answers: [],
                     currentQ: 0
@@ -246,7 +246,7 @@ class GamesShow extends Component {
     }
 
     render() {
-        const { round, code, name, player_id, players, movie, movies, character, spy, joined, questions, answers, isLoading, seconds, currentQ } = this.state
+        const { round, code, name, player_id, players, movie, movies, character, spy, joined, questions, answers, isLoading, currentQ } = this.state
 
         let columns = [
             {

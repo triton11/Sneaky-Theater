@@ -15,6 +15,10 @@ function App() {
                 <Route path="/games/create" exact component={GamesInsert} />
                 <Route path="/games/update/:id" exact component={GamesUpdate} />
                 <Route path="/games/show/:id" exact component={GamesShow} />
+                <Route path="/#!/games/list" exact component={GamesList} />
+                <Route path="/#!/games/create" exact component={GamesInsert} />
+                <Route path="/#!/games/update/:id" exact component={GamesUpdate} />
+                <Route path="/#!/games/show/:id" exact component={GamesShow} />
             </Switch>
         </Router>
     )

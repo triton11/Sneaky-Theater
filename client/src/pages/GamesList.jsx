@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import ReactTable from 'react-table'
 import api from '../api'
 
+import { Link } from 'react-router-dom'
+
 import styled from 'styled-components'
 
 import 'react-table/react-table.css'
@@ -10,20 +12,11 @@ const Wrapper = styled.div`
     padding: 0 40px 40px 40px;
 `
 
-const Update = styled.div`
-    color: #ef9b0f;
-    cursor: pointer;
-`
-
 const Delete = styled.div`
     color: #ff0000;
     cursor: pointer;
 `
 
-const Show = styled.div`
-    color: #cc0000;
-    cursor: pointer;
-`
 // Not used currently, but maybe in the future.
 // class UpdateGame extends Component {
 //     updateUser = event => {
@@ -37,17 +30,6 @@ const Show = styled.div`
 //     }
 // }
 
-class ShowGame extends Component {
-    showGame = event => {
-        event.preventDefault()
-
-        window.location.href = `/games/show/${this.props.id}`
-    }
-
-    render() {
-        return <Show onClick={this.showGame}>Join</Show>
-    }
-}
 
 class DeleteGame extends Component {
     deleteUser = event => {
@@ -115,7 +97,9 @@ class GamesList extends Component {
                 Cell: function(props) {
                     return (
                         <span>
-                            <ShowGame id={props.original._id} />
+                            <Link to={`/games/show/${props.original._id}`} className="nav-link">
+                                Join Game
+                            </Link>
                         </span>
                     )
                 },
