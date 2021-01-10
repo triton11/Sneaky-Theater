@@ -55,6 +55,7 @@ class GamesShow extends Component {
             players: [],
             columns: [],
             questions: [],
+            guesses: [],
             answers: [],
             isLoading: false,
             currentQ: 0
@@ -112,9 +113,9 @@ class GamesShow extends Component {
 
     // Called when the admin clicks "Reveal Answers"
     handleUpdateGame = async () => {
-        const { game_id, code, name } = this.state
-        const round = 2
-        const payload = { code, name, round }
+        const { game_id, code, name, round } = this.state
+        const next_round = parseInt(round) + 1
+        const payload = { code, name, round: next_round }
 
         await api.updateGameById(game_id, payload).then(res => {
             this.state.joined = true
@@ -139,6 +140,14 @@ class GamesShow extends Component {
         this.setState({answers: answers}); // Update the state.
     }
 
+    // Everytime the guess senses a keystroke, this method updates the entire
+    // guesses state variable. 
+    handleGuessInput = async(index, event) => {
+        var guesses = this.state.guesses.slice(); // Make a copy of the guesses first.
+        guesses[index] = event.target.value; // Update it with the modified answer.
+        this.setState({guesses: guesses}); // Update the state.
+    }
+
     // Called when the admin clicks "Start" or "Reset" game
     handleStartGame = async () => {
         const { game_id } = this.state
@@ -151,6 +160,7 @@ class GamesShow extends Component {
                 questions: res.data.data.questions,
                 // start_time: new Date(res.data.data.start_time),
                 spy: res.data.data.state["spy"],
+                guesses: [],
                 answers: [],
                 currentQ: 0
             })            
@@ -159,10 +169,10 @@ class GamesShow extends Component {
 
     // Called when a player clicks "submit answers"
     submitAnswers = async () => {
-        const { player_id, answers, name } = this.state
-        const payload = { answers, name }
+        const { player_id, answers, guesses, name } = this.state
+        const payload = { answers, guesses, name }
         await api.updatePlayerById(player_id, payload).then(res => {
-            window.alert(`Answers submitted successfully`)
+            window.alert(`Submitted successfully`)
             this.getPlayers()
         })
     }
@@ -213,10 +223,15 @@ class GamesShow extends Component {
     // including the other player's answers.
     getGameState = async () => {
         await api.getGameById(this.props.match.params.id).then(game => {
-            if (game.data.data.state["round"] !== this.state.round) {
+            if ((game.data.data.state["round"] !== this.state.round) && (game.data.data.state["round"] <= 1)) {
                 this.setState({
                     answers: [],
+                    guesses: [],
                     currentQ: 0
+                })
+            } else if ((game.data.data.state["round"] !== this.state.round) && (game.data.data.state["round"]%2 == 0)) {
+                this.setState({
+                    currentQ: ((parseInt(game.data.data.state["round"])) / 2 - 1)
                 })
             }
             this.setState({
@@ -246,7 +261,7 @@ class GamesShow extends Component {
     }
 
     render() {
-        const { round, code, name, player_id, players, movie, movies, character, spy, joined, questions, answers, isLoading, currentQ } = this.state
+        const { round, code, name, player_id, players, movie, movies, character, spy, joined, questions, answers, isLoading, currentQ, guesses } = this.state
 
         let columns = [
             {
@@ -263,6 +278,7 @@ class GamesShow extends Component {
                     <InputText
                         type="text"
                         value={name}
+                        placeholder="Enter name"
                         onChange={this.handleChangeInputName}
                     />
                     <Button onClick={this.handleJoinGame}>Join Game</Button>
@@ -293,25 +309,26 @@ class GamesShow extends Component {
         // or shows the spy a list of all the possible movies to choose from.
         const movieOrSpy = (spy === player_id) ? spyInfo : playerInfo
 
+        const guessWho = (spy === player_id) ? "Guess the movie!" : "Guess who the spy is!"
+
         // This logic shows the editable answer text boxes if its round 1
         // or adds everyone's answers to the player names table if its
         // round 2.
-        if (joined === true && round == 1) {
+        if (joined === true && (round == 1 || round == 3 || round == 5)) {
 
             // Used only in the timer version
             // this.startTimer()
             
-            const listQuestions = questions.map((q, index) =>
-                <li key={index}>
-                    {q}
+            const listQuestions = 
+                <div>
+                    {questions[(round - 1)/2]}
                     <br></br>
                     <InputText
                         type="text"
-                        value={answers[index] || ''}
-                        onChange={this.handleQuestionInput.bind(this, index)}
+                        value={answers[(round - 1)/2] || ''}
+                        onChange={this.handleQuestionInput.bind(this, (round - 1)/2)}
                     />
-                </li>
-            );
+                </div>
 
             // Again, used only in the timer version
             // const secondsOrZero = (seconds < 0) ? 0 : seconds;
@@ -319,13 +336,14 @@ class GamesShow extends Component {
             mainView = 
                 <div>
                     {movieOrSpy}
+                    <br></br>
                     <div>
-                        Questions:
+                        Question {((round - 1)/2)+1}:
                         {listQuestions}
                         <Button onClick={this.submitAnswers}>Submit Answers</Button>
                     </div>
                 </div>
-        } else if (joined === true && round == 2) {
+        } else if (joined === true && (round == 2 || round == 4 || round == 6)) {
             columns = [
                 {
                     Header: 'Name',
@@ -342,8 +360,52 @@ class GamesShow extends Component {
             mainView =
                 <div>
                     {movieOrSpy}
+                    <div>
+                        <br></br>
+                        {guessWho}
+                        <br></br>
+                        <InputText
+                            type="text"
+                            value={guesses[round/2 - 1] || ''}
+                            onChange={this.handleGuessInput.bind(this, round/2 - 1)}
+                        />
+                        <Button onClick={this.submitAnswers}>Submit Guesses</Button>
+                    </div>
                     <Button onClick={this.showNextQuestion}>Next Question</Button>
                 </div>
+        } else if (joined === true && (round == 7)) {
+            const spyName = players.filter(function(p) { return p._id === spy; })[0];
+            columns = [
+                {
+                    Header: 'Name',
+                    accessor: 'name',
+                    minWidth: 200,
+                    maxWidth: 300,
+                    getProps: (state, rowInfo, column) => {
+                        return {
+                            style: {
+                                background: rowInfo && rowInfo.row.name === spyName.name ? 'red' : null,
+                            },
+                        };
+                    },
+                },
+                {
+                    Header: questions[0],
+                    accessor: `guesses[0]`,
+                    style: { 'whiteSpace': 'unset' }
+                },
+                {
+                    Header: questions[1],
+                    accessor: `guesses[1]`,
+                    style: { 'whiteSpace': 'unset' }
+                },
+                {
+                    Header: questions[2],
+                    accessor: `guesses[2]`,
+                    style: { 'whiteSpace': 'unset' }
+                }
+            ]
+
         } else {
             mainView =
                 <div>
@@ -355,18 +417,23 @@ class GamesShow extends Component {
         let adminView;
         if (!(players[0] === undefined)) {
             if (players[0]._id === player_id) {
-                if (round == 2) {
+                if (round >= 7) {
                     adminView = 
                     <div>
                         <CancelButton href={'/games/list'}>List</CancelButton>
                         <Button onClick={this.handleStartGame}>Reset Game</Button>
                     </div>
-                } else {
+                } else if (round == 0 || round == null){
                     adminView = 
                         <div>
                             <CancelButton href={'/games/list'}>Cancel</CancelButton>
                             <Button onClick={this.handleStartGame}>Start Game</Button>
-                            <Button onClick={this.handleUpdateGame}>Reveal All Answers</Button>
+                        </div>
+                } else {
+                    adminView = 
+                        <div>
+                            <CancelButton href={'/games/list'}>Cancel</CancelButton>
+                            <Button onClick={this.handleUpdateGame}>Next Round</Button>
                         </div>
                 }
             }

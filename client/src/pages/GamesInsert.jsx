@@ -41,7 +41,7 @@ class GamesInsert extends Component {
 
         this.state = {
             code: '',
-            theme: ''
+            theme: 'classic'
         }
     }
 

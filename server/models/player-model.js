@@ -6,6 +6,7 @@ const Player = new Schema(
         name: { type: String, required: true },
         code: { type: String, required: true },
         answers: { type: Array },
+        guesses: { type: Array },
         character: { type: String }
     },
     { timestamps: true },

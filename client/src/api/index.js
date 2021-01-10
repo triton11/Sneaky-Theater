@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-    baseURL: 'http://ec2-3-80-83-160.compute-1.amazonaws.com/api',
+    baseURL: 'http://192.168.0.4:3000/api',
 })
 
 export const insertGame = payload => api.post(`/game`, payload)
