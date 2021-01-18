@@ -252,8 +252,8 @@ class GamesShow extends Component {
     componentDidMount = async () => {
         this.setState({ isLoading: true })
         this.getGameState()
-        // Pull in fresh data for the game state every 5 seconds
-        this.gameTimer = setInterval(this.getGameState, 5000);
+        // Pull in fresh data for the game state every 3 seconds
+        this.gameTimer = setInterval(this.getGameState, 3000);
     }
 
     componentWillUnmount() {
@@ -300,8 +300,7 @@ class GamesShow extends Component {
 
         const spyInfo = 
                 <div>
-                    <Label>You are the spy! Here are the possible movies:</Label>
-                    {listMovies}
+                    <Label>You are the spy!</Label>
                 </div>
         const playerInfo = <div><Label>The movie is: {movie}</Label><br></br><Label>You are: {character}</Label></div>
 
@@ -412,6 +411,14 @@ class GamesShow extends Component {
                 </div>
         }
 
+        const waitingOn = players.filter(function(p) { 
+            if (round % 2 == 1) {
+                return (p.answers[(round - 1)/2] == null)
+            } else {
+                return (p.guesses[round/2 - 1] == null)
+            }
+        }).map(x => x.name + ", ")
+
         // The first player that joins is the admin. Only they get access to the 
         // "Reset/Start Game" button and the "Reveal Answers" button.
         let adminView;
@@ -454,6 +461,7 @@ class GamesShow extends Component {
                     minRows={0}
                     width='600px'
                 />
+                Waiting on: {waitingOn}
 
                 {adminView}
             </Wrapper>
