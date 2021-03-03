@@ -3,6 +3,8 @@ import api from '../api'
 import ReactTable from 'react-table'
 import 'react-table/react-table.css'
 import styled from 'styled-components'
+import Select from 'react-select'
+
 
 // Who needs seperate files for style/css? Not me!
 const Title = styled.h1.attrs({
@@ -58,7 +60,8 @@ class GamesShow extends Component {
             guesses: [],
             answers: [],
             isLoading: false,
-            currentQ: 0
+            currentQ: 0,
+            showGuesses: true
             // Previously used with answer timer
             // cur_time: new Date()
             // start_time: new Date(),
@@ -84,15 +87,27 @@ class GamesShow extends Component {
     }
 
     // Called by getPlayers as part of getGameState
+    // Gets saved character/answers/guesses for a newly joined player, otherwise just gets the character
+    // (since the character can change after a game reset)
     getPlayerById = async () => {
         const player = this.state.players.find(p => p.name === this.state.name)
         if (player !== undefined) {
             await api.getPlayerById(player._id).then(player_details => {
-                this.setState({
-                    character: player_details.data.data.character,
-                    player_id: player._id,
-                    // answers: player_details.data.data.answers,
-                })
+                // If a player has logged out and rejoins, or joins initially,
+                // we need to set the character, player_id, answers and guesses.
+                // Otherwise, we just need to set the character
+                if (this.state.player_id === '') {
+                    this.setState({
+                        character: player_details.data.data.character,
+                        player_id: player._id,
+                        answers: player_details.data.data.answers,
+                        guesses: player_details.data.data.guesses,
+                    })
+                } else {
+                    this.setState({
+                        character: player_details.data.data.character,
+                    })
+                }
             })
         } else {
             return undefined
@@ -144,7 +159,7 @@ class GamesShow extends Component {
     // guesses state variable. 
     handleGuessInput = async(index, event) => {
         var guesses = this.state.guesses.slice(); // Make a copy of the guesses first.
-        guesses[index] = event.target.value; // Update it with the modified answer.
+        guesses[index] = event.value; // Update it with the modified answer.
         this.setState({guesses: guesses}); // Update the state.
     }
 
@@ -219,10 +234,21 @@ class GamesShow extends Component {
         }
     }
 
+    // Cycle to the next question when a player clicks "Next Question"
+    toggleShowGuesses = async () => {
+        let oldShowGuesses = this.state.showGuesses;
+        this.setState({
+            showGuesses: !(oldShowGuesses)
+        });
+    }
+
     // This method is triggered every 5 seconds, and gets the game state
     // including the other player's answers.
     getGameState = async () => {
         await api.getGameById(this.props.match.params.id).then(game => {
+            // If its the first round, reset answers and questions locally. We will reset
+            // character in getPlayerById, which is called after getPlayers.
+            // Otherwise, just set the currentQ.
             if ((game.data.data.state["round"] !== this.state.round) && (game.data.data.state["round"] <= 1)) {
                 this.setState({
                     answers: [],
@@ -252,8 +278,8 @@ class GamesShow extends Component {
     componentDidMount = async () => {
         this.setState({ isLoading: true })
         this.getGameState()
-        // Pull in fresh data for the game state every 3 seconds
-        this.gameTimer = setInterval(this.getGameState, 3000);
+        // Pull in fresh data for the game state every 2 seconds
+        this.gameTimer = setInterval(this.getGameState, 2000);
     }
 
     componentWillUnmount() {
@@ -261,7 +287,7 @@ class GamesShow extends Component {
     }
 
     render() {
-        const { round, code, name, player_id, players, movie, movies, character, spy, joined, questions, answers, isLoading, currentQ, guesses } = this.state
+        const { round, code, name, player_id, players, movie, movies, character, spy, joined, questions, answers, isLoading, currentQ, guesses, showGuesses } = this.state
 
         let columns = [
             {
@@ -284,10 +310,10 @@ class GamesShow extends Component {
                     <Button onClick={this.handleJoinGame}>Join Game</Button>
                 </div>
         } else {
-            joinView = 
-                <div align="center">
-                    Welcome {name}
-                </div>
+            // joinView = 
+            //     <div align="center">
+            //         Welcome {name}
+            //     </div>
         }
 
         let mainView;
@@ -310,6 +336,10 @@ class GamesShow extends Component {
 
         const guessWho = (spy === player_id) ? "Guess the movie!" : "Guess who the spy is!"
 
+        const guessOptions = (spy === player_id) ? 
+            movies.map(m => ({"value": m, "label": m})) : 
+            players.map(p => ({"value": p.name, "label": p.name}))
+
         // This logic shows the editable answer text boxes if its round 1
         // or adds everyone's answers to the player names table if its
         // round 2.
@@ -320,7 +350,7 @@ class GamesShow extends Component {
             
             const listQuestions = 
                 <div>
-                    {questions[(round - 1)/2]}
+                    <Label> {questions[(round - 1)/2]} </Label>
                     <br></br>
                     <InputText
                         type="text"
@@ -337,7 +367,7 @@ class GamesShow extends Component {
                     {movieOrSpy}
                     <br></br>
                     <div>
-                        Question {((round - 1)/2)+1}:
+                        <Label> Question {((round - 1)/2)+1}: </Label>
                         {listQuestions}
                         <Button onClick={this.submitAnswers}>Submit Answers</Button>
                     </div>
@@ -356,25 +386,25 @@ class GamesShow extends Component {
                     style: { 'whiteSpace': 'unset' }
                 }
             ]
+            // Used to be above the graph, but removed for now
+            const nextQuestionButton = <Button onClick={this.showNextQuestion}>Next Question</Button>
             mainView =
                 <div>
                     {movieOrSpy}
                     <div>
                         <br></br>
-                        {guessWho}
+                        <Label> {guessWho} </Label>
                         <br></br>
-                        <InputText
-                            type="text"
-                            value={guesses[round/2 - 1] || ''}
-                            onChange={this.handleGuessInput.bind(this, round/2 - 1)}
-                        />
+                        <Select options={guessOptions} onChange={this.handleGuessInput.bind(this, round/2 - 1)} />
                         <Button onClick={this.submitAnswers}>Submit Guesses</Button>
                     </div>
-                    <Button onClick={this.showNextQuestion}>Next Question</Button>
                 </div>
         } else if (joined === true && (round == 7)) {
             const spyName = players.filter(function(p) { return p._id === spy; })[0];
-            columns = [
+            const youWin = (player_id === spy && guesses[guesses.length - 1] === movie) || (guesses[guesses.length - 1] === spyName.name)
+            const toggle = <Button onClick={this.toggleShowGuesses}>Toggle Guesses / Answers</Button>
+            mainView = youWin ? <div><h2 align='center'>You win!</h2>{toggle}</div> : <div><h2 align='center'>You lost!</h2> {toggle} </div>
+            const guessColumns = [
                 {
                     Header: 'Name',
                     accessor: 'name',
@@ -383,7 +413,7 @@ class GamesShow extends Component {
                     getProps: (state, rowInfo, column) => {
                         return {
                             style: {
-                                background: rowInfo && rowInfo.row.name === spyName.name ? 'red' : null,
+                                fontWeight: rowInfo && rowInfo.row.name === spyName.name ? 'bold' : 'normal',
                             },
                         };
                     },
@@ -404,7 +434,37 @@ class GamesShow extends Component {
                     style: { 'whiteSpace': 'unset' }
                 }
             ]
-
+            const answerColumns = [
+                {
+                    Header: 'Name',
+                    accessor: 'name',
+                    minWidth: 200,
+                    maxWidth: 300,
+                    getProps: (state, rowInfo, column) => {
+                        return {
+                            style: {
+                                fontWeight: rowInfo && rowInfo.row.name === spyName.name ? 'bold' : 'normal',
+                            },
+                        };
+                    },
+                },
+                {
+                    Header: questions[0],
+                    accessor: `answers[0]`,
+                    style: { 'whiteSpace': 'unset' }
+                },
+                {
+                    Header: questions[1],
+                    accessor: `answers[1]`,
+                    style: { 'whiteSpace': 'unset' }
+                },
+                {
+                    Header: questions[2],
+                    accessor: `answers[2]`,
+                    style: { 'whiteSpace': 'unset' }
+                }
+            ]
+            columns = showGuesses ? guessColumns : answerColumns;
         } else {
             mainView =
                 <div>
@@ -427,19 +487,19 @@ class GamesShow extends Component {
                 if (round >= 7) {
                     adminView = 
                     <div>
-                        <CancelButton href={'/games/list'}>List</CancelButton>
+                        <CancelButton href={'/'}>Home</CancelButton>
                         <Button onClick={this.handleStartGame}>Reset Game</Button>
                     </div>
                 } else if (round == 0 || round == null){
                     adminView = 
                         <div>
-                            <CancelButton href={'/games/list'}>Cancel</CancelButton>
+                            <CancelButton href={'/'}>Home</CancelButton>
                             <Button onClick={this.handleStartGame}>Start Game</Button>
                         </div>
                 } else {
                     adminView = 
                         <div>
-                            <CancelButton href={'/games/list'}>Cancel</CancelButton>
+                            <CancelButton href={'/'}>Home</CancelButton>
                             <Button onClick={this.handleUpdateGame}>Next Round</Button>
                         </div>
                 }
@@ -452,7 +512,6 @@ class GamesShow extends Component {
                 {joinView}
 
                 {mainView}
-
                 <ReactTable
                     data={players}
                     columns={columns}
@@ -460,8 +519,13 @@ class GamesShow extends Component {
                     defaultPageSize={10}
                     minRows={0}
                     width='600px'
+                    showPagination={false}
                 />
-                Waiting on: {waitingOn}
+                <div>
+                    <Label>
+                        Waiting on: {waitingOn}
+                    </Label>
+                </div>
 
                 {adminView}
             </Wrapper>

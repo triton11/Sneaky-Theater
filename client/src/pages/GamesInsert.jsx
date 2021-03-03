@@ -89,12 +89,11 @@ class GamesInsert extends Component {
                     <option value="classic">classic</option>
                     <option value="animated">animated</option>
                     <option value="adventure">adventure</option>
-                    <option value="protestors">protestors</option>
                 </select>
                 <br></br>
 
                 <Button onClick={this.handleIncludeGame}>Add Game</Button>
-                <CancelButton href={'/games/list'}>Cancel</CancelButton>
+                <CancelButton href={'/'}>Cancel</CancelButton>
             </Wrapper>
         )
     }

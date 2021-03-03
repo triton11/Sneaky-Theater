@@ -73,7 +73,6 @@ class GamesList extends Component {
 
     render() {
         const { games, isLoading } = this.state
-        console.log('GamesList -> render -> games', games)
 
         const columns = [
             {

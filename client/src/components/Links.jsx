@@ -12,6 +12,7 @@ const List = styled.div.attrs({
 
 const Item = styled.div.attrs({
     className: 'collpase navbar-collapse',
+    style: { visibility: 'hidden', display: 'none' }
 })``
 
 class Links extends Component {

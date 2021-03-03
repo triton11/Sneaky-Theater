@@ -336,6 +336,8 @@ startGameById = async (req, res) => {
                 game.players.forEach(player_id =>
                     Player.findOne({ _id: player_id }, (err, player) => {
                         player.character = game.characters[randomStartingIndex % game.characters.length]
+                        player.answers = []
+                        player.guesses = []
                         randomStartingIndex += 1
                         player
                             .save()
