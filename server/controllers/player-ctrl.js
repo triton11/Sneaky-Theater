@@ -10,7 +10,6 @@ createPlayer = (req, res) => {
             error: 'You must provide a player',
         })
     }
-    console.log(body)
 
     const player = new Player(body)
 
@@ -54,6 +53,7 @@ updatePlayer = async (req, res) => {
         }
         player.name = body.name
         player.answers = body.answers
+        player.guesses = body.guesses
         player
             .save()
             .then(() => {

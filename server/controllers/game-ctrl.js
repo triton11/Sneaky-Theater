@@ -1,6 +1,23 @@
 const Game = require('../models/game-model')
 const Player = require('../models/player-model')
 
+const protests_list = [
+    ["Suffragists", "Susan B. Anthony", "Alice Paul", "Elizabeth Stanton", "Lucy Stone", "Lucretia Mott", "Frances E.W Harper"],
+    ["Civil Rights Movement of 1960", "Martin Luther King Jr", "Malcolm X", "Rosa Parks", "John Lewis", "Little Rock Nine", "Stokely Carmichael"],
+    ["LGBTQ Activists", "Marsha P. Johnson", "Harvey Milk", "Audre Lorde", "Sylvia Rivera", "Karl Heinrich Ulrichs", "Bayard Rustin"],
+    ["Workers Rights", "Cesar Chavez", "Mother Jones", "Peter McGuire", "Eugene Debs", "Philip Randolph", "Samuel Gompers"],
+    ["Abolitionists", "Harriet Tubman", "Frederick Douglas", "Sojourner Truth", "John Brown", "Harriet Beecher Stowe", "William Lloyd Garrison"],
+    ["BLM", "Alicia Garza", "Erica Gardner", "DeRay Mckesson", "Bryan Stevenson", "NoName", "Patrisse Cullors", "Opal Tometi"],
+    ["Environmentalists", "Rachel Carson", "John Muir", "Aldo Leopold", "Julia Hill", "Gaylord Nelson", "Theodore Roosevelt"],
+    ["Harlem Rennesaince", "Zora Neale Hurston", "Langston Hughes", "W.E.B DuBois", "Marcus Garvey", "Alain Leroy Locke", "Louis Armstrong"],
+    ["Whistleblowers", "Edward Snowden", "Daniel Ellsberg", "Bradley Manning", "Frank Serpico", "Deep Throat", "Joe Darby"],
+    ["Journalists", "Ida B. Wells", "Upton Sinclair", "Woodward and Bernstein", "John Peter Zenger", "Ronan Farrow", "Judith Miller"],
+    ["Anti-war Protestors", "Muhammad Ali", "John Lennon", "Bob Dylan", "Noam Chomsky", "Mary Beth Tinker", "Draft card burner"],
+    ["Climate Activists", "Gretchen Thunberg", "Al Gore", "Xiuhtezcatl Martinez", "Xiye Bastida", "David Attenborough", "Varshini Prakash"],
+    ["Immigrant Rights Activists", "Juan Escalante", "Jose Antonio Vargas", "Cristina Jimenez", "A DREAMer", "Erika Andiola", "ICE Detainee"],
+    ["Democratic Socialists", "AOC", "Bernie Sanders", "Rashida Tlaib", "Jamaal Bowman", "Michael Harrington", "Michael Moore"]
+]
+
 const animated_movie_list = [
     ["Peter Pan", "Hook", "Peter Pan", "Tinkerbell", "Wendy", "A Lost Boy", "Alligator"],
     ["Frozen", "Elsa", "Anna", "Olaf", "Christoff", "Hans", "Christoff's Reindeer"],
@@ -64,31 +81,54 @@ const adventure_movie_list = [
     ["Gaurdians of the Galaxy", "Peter Quill", "Rocket Raccoon", "Groot", "Drax the Destroyer", "Nebula", "Gamora"]
 ]
 
-const question_list_1 = [
-    "How would you kill someone, y'know, if you HAD to?",
-    "What is your weapon of choice?",
-    "Whats your favorite sport and why?",
-    "If you were a lawyer, how would you win a case?",
-    "Why do people fear you?",
-    "How do you deal with haters?"
-]
-const question_list_2 = [
-    "What do you miss when you have to travel?",
-    "How do you show affection in a relationship?",
-    "How do you entertain your friends?",
-    "What do people admire about you?",
-    "What do you like to do in your free time?",
-    "What do you do to relax?"
+const movie_question_list = [
+    [
+        "How would you kill someone, y'know, if you HAD to?",
+        "What is your weapon of choice?",
+        "Whats your favorite sport and why?",
+        "If you were a lawyer, how would you win a case?",
+        "Why do people fear you?",
+        "How do you deal with haters?"
+    ],
+    [
+        "What do you miss when you have to travel?",
+        "How do you show affection in a relationship?",
+        "How do you entertain your friends?",
+        "What do people admire about you?",
+        "What do you like to do in your free time?",
+        "What do you do to relax?"
+    ],
+    [
+        "Where is your favorite place to visit?",
+        "What is one thing you can't live without?",
+        "What was the craziest thing that happened in your past?",
+        "What do you want to change about your home?",
+        "Whats in your purse?",
+        "How do you make money?"
+    ]
 ]
 
-const question_list_3 = [
-    "Where is your favorite place to visit?",
-    "What is one thing you can't live without?",
-    "What was the craziest thing that happened in your past?",
-    "What do you want to change about your home?",
-    "Whats in your purse?",
-    "How do you make money?"
+const history_question_list = [
+    [
+        "How often do you travel?",
+        "If you were a lawyer, how would you win a case?",
+        "What is one thing you can't live without?",
+        "How mainstream is your movement?"
+    ],
+    [
+        "How are you funded?",
+        "How do you rally your supporters?",
+        "What drives you to fight for change?",
+        "What gives you hope?"
+    ],
+    [
+        "Where is your favorite place to visit?",
+        "What is the biggest challenge you face?",
+        "What was the craziest thing that happened in your past?",
+        "What do you want to change about your home?",
+    ]
 ]
+
 createGame = (req, res) => {
     const body = req.body
 
@@ -261,7 +301,10 @@ startGameById = async (req, res) => {
         } else if (game.theme === "classic") {
             movie = classic_movie_list[Math.floor(Math.random()*classic_movie_list.length)]
             game.movies = classic_movie_list.map(m => m[0])
-        }
+        } else if (game.theme === "protestors") {
+            movie = protests_list[Math.floor(Math.random()*protests_list.length)]
+            game.movies = protests_list.map(m => m[0])
+        } 
         game.state = { 
             "round": 1, 
             "spy": game.players[Math.floor(Math.random()*game.players.length)],
@@ -271,10 +314,19 @@ startGameById = async (req, res) => {
         game.start_time = Date.now()
 
         game.questions = [
-            question_list_1[Math.floor(Math.random()*question_list_1.length)],
-            question_list_2[Math.floor(Math.random()*question_list_2.length)],
-            question_list_3[Math.floor(Math.random()*question_list_3.length)]
+            movie_question_list[0][Math.floor(Math.random()*movie_question_list[0].length)],
+            movie_question_list[1][Math.floor(Math.random()*movie_question_list[1].length)],
+            movie_question_list[2][Math.floor(Math.random()*movie_question_list[2].length)]
         ]
+
+        if (game.theme === "protestors") {
+            game.questions = [
+                history_question_list[0][Math.floor(Math.random()*history_question_list[0].length)],
+                history_question_list[1][Math.floor(Math.random()*history_question_list[1].length)],
+                history_question_list[2][Math.floor(Math.random()*history_question_list[2].length)]
+            ]
+        }
+
         game.characters = movie.slice(1, movie.length)
         game
             .save()
@@ -284,6 +336,8 @@ startGameById = async (req, res) => {
                 game.players.forEach(player_id =>
                     Player.findOne({ _id: player_id }, (err, player) => {
                         player.character = game.characters[randomStartingIndex % game.characters.length]
+                        player.answers = []
+                        player.guesses = []
                         randomStartingIndex += 1
                         player
                             .save()

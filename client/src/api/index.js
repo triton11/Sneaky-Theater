@@ -1,7 +1,11 @@
 import axios from 'axios'
 
+// const api = axios.create({
+//     baseURL: 'http://10.0.0.23:3000/api',
+// })
+
 const api = axios.create({
-    baseURL: 'http://ec2-3-80-83-160.compute-1.amazonaws.com/api',
+    baseURL: 'http://ec2-18-212-213-21.compute-1.amazonaws.com/api',
 })
 
 export const insertGame = payload => api.post(`/game`, payload)

@@ -73,16 +73,21 @@ class GamesList extends Component {
 
     render() {
         const { games, isLoading } = this.state
-        console.log('GamesList -> render -> games', games)
 
         const columns = [
             {
-                Header: 'Code',
+                Header: 'Game Code',
                 accessor: 'code',
+                style: { 
+                    textAlign: 'center',
+                    fontWeight: 'bold' 
+                }
             },
             {
                 Header: '',
                 accessor: '',
+                minWidth: 100,
+                maxWidth: 150,
                 Cell: function(props) {
                     return (
                         <span>
@@ -94,6 +99,8 @@ class GamesList extends Component {
             {
                 Header: '',
                 accessor: '',
+                minWidth: 100,
+                maxWidth: 150,
                 Cell: function(props) {
                     return (
                         <span>

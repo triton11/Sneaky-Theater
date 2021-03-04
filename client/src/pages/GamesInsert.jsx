@@ -41,7 +41,7 @@ class GamesInsert extends Component {
 
         this.state = {
             code: '',
-            theme: ''
+            theme: 'classic'
         }
     }
 
@@ -93,7 +93,7 @@ class GamesInsert extends Component {
                 <br></br>
 
                 <Button onClick={this.handleIncludeGame}>Add Game</Button>
-                <CancelButton href={'/games/list'}>Cancel</CancelButton>
+                <CancelButton href={'/'}>Cancel</CancelButton>
             </Wrapper>
         )
     }
