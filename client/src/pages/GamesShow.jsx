@@ -220,16 +220,16 @@ class GamesShow extends Component {
     //     }
     // }
 
-    // Cycle to the next question when a player clicks "Next Question"
-    showNextQuestion = async () => {
+    // Cycle to the previous question when a player clicks "Previous Question"
+    showPreviousQuestion = async () => {
         let oldQ = this.state.currentQ
-        if (oldQ === 2) {
+        if (oldQ === 0) {
             this.setState({
-                currentQ: 0,
+                currentQ: 2,
             });
         } else {
             this.setState({
-                currentQ: oldQ + 1,
+                currentQ: oldQ - 1,
             });
         }
     }
@@ -387,7 +387,8 @@ class GamesShow extends Component {
                 }
             ]
             // Used to be above the graph, but removed for now
-            const nextQuestionButton = <Button onClick={this.showNextQuestion}>Next Question</Button>
+            // Edit: Re-added 3/13/2021
+            const previousQuestionButton = <Button onClick={this.showPreviousQuestion}>Previous Question</Button>
             mainView =
                 <div>
                     {movieOrSpy}
@@ -397,6 +398,7 @@ class GamesShow extends Component {
                         <br></br>
                         <Select options={guessOptions} onChange={this.handleGuessInput.bind(this, round/2 - 1)} />
                         <Button onClick={this.submitAnswers}>Submit Guesses</Button>
+                        {previousQuestionButton}
                     </div>
                 </div>
         } else if (joined === true && (round == 7)) {

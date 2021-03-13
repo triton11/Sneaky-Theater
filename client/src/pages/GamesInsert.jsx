@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom';
 import api from '../api'
 
 import styled from 'styled-components'
@@ -36,6 +37,7 @@ const CancelButton = styled.a.attrs({
 `
 
 class GamesInsert extends Component {
+
     constructor(props) {
         super(props)
 
@@ -59,15 +61,12 @@ class GamesInsert extends Component {
 
     handleIncludeGame = async () => {
         const { code, theme } = this.state
-        console.log(theme)
 
         const payload = { code, theme }
 
         await api.insertGame(payload).then(res => {
             window.alert(`Game inserted successfully`)
-            this.setState({
-                code: ''
-            })
+            this.props.history.push(`/games/show/${res.data.id}`);
         })
     }
 
