@@ -67,7 +67,7 @@ class GamesInsert extends Component {
         await api.insertGame(payload).then(res => {
             window.alert(`Game inserted successfully`)
             this.props.history.push(`/games/show/${res.data.id}`);
-        })
+        }).catch(e => { window.alert(`Create failed. Try a different code.`) })
     }
 
     render() {

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { withRouter } from 'react-router-dom';
 import api from '../api'
 import { Link } from 'react-router-dom'
 
@@ -65,13 +66,22 @@ class GamesHome extends Component {
             ? event.target.value
             : this.state.code
 
-        const selected = this.state.games.filter(function(g) { return g.code === code; })[0]
-        let selectedGame = ''
+        this.setState({ code })
+    }
 
-        if (selected !== undefined) {
-            selectedGame = selected._id
-        }
-        this.setState({ code, selectedGame })
+    handleJoinGame = async () => {
+        const { code, theme } = this.state
+
+        await api.getAllGames().then(games => {
+            const selected = games.data.data.filter(function(g) { return g.code === code; })[0]
+            let selectedGame = ''
+
+            if (selected !== undefined) {
+                this.props.history.push(`/games/show/${selected._id}`);
+            } else {
+                window.alert(`No game found for that code.`)
+            }
+        })
     }
 
     render() {
@@ -92,9 +102,7 @@ class GamesHome extends Component {
                     </div>
                 </Wrapper>
                 <Wrapper>
-                    <Link to={`/games/show/${selectedGame}`} className="nav-link">
-                        Join Game
-                    </Link>
+                    <a href="#" onClick={this.handleJoinGame} className="nav-link">Join Game</a>
                     or
                     <Link to="/games/create" className="nav-link">
                         Create Game
