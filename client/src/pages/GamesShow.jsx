@@ -278,8 +278,8 @@ class GamesShow extends Component {
     componentDidMount = async () => {
         this.setState({ isLoading: true })
         this.getGameState()
-        // Pull in fresh data for the game state every 2 seconds
-        this.gameTimer = setInterval(this.getGameState, 2000);
+        // Pull in fresh data for the game state every 1 seconds
+        this.gameTimer = setInterval(this.getGameState, 1000);
     }
 
     componentWillUnmount() {
@@ -405,20 +405,19 @@ class GamesShow extends Component {
             const spyName = players.filter(function(p) { return p._id === spy; })[0];
             const youWin = (player_id === spy && guesses[guesses.length - 1] === movie) || (guesses[guesses.length - 1] === spyName.name)
             const toggle = <Button onClick={this.toggleShowGuesses}>Toggle Guesses / Answers</Button>
-            mainView = youWin ? <div><h2 align='center'>You win!</h2>{toggle}</div> : <div><h2 align='center'>You lost!</h2> {toggle} </div>
+            joinView = youWin ? <div><h2 align='center'>You win!</h2>{toggle}</div> : <div><h2 align='center'>You lost!</h2> {toggle} </div>
+            mainView = <p> The movie was {movie}. </p>
             const guessColumns = [
                 {
                     Header: 'Name',
                     accessor: 'name',
-                    minWidth: 200,
-                    maxWidth: 300,
-                    getProps: (state, rowInfo, column) => {
-                        return {
-                            style: {
-                                fontWeight: rowInfo && rowInfo.row.name === spyName.name ? 'bold' : 'normal',
-                            },
-                        };
-                    },
+                    minWidth: 50,
+                    maxWidth: 200
+                },
+                {
+                    Header: 'Character',
+                    accessor: 'character',
+                    style: { 'whiteSpace': 'unset' }
                 },
                 {
                     Header: questions[0],
@@ -440,15 +439,13 @@ class GamesShow extends Component {
                 {
                     Header: 'Name',
                     accessor: 'name',
-                    minWidth: 200,
-                    maxWidth: 300,
-                    getProps: (state, rowInfo, column) => {
-                        return {
-                            style: {
-                                fontWeight: rowInfo && rowInfo.row.name === spyName.name ? 'bold' : 'normal',
-                            },
-                        };
-                    },
+                    minWidth: 50,
+                    maxWidth: 200
+                },
+                {
+                    Header: 'Character',
+                    accessor: 'character',
+                    style: { 'whiteSpace': 'unset' }
                 },
                 {
                     Header: questions[0],
@@ -489,19 +486,16 @@ class GamesShow extends Component {
                 if (round >= 7) {
                     adminView = 
                     <div>
-                        <CancelButton href={'/'}>Home</CancelButton>
                         <Button onClick={this.handleStartGame}>Reset Game</Button>
                     </div>
                 } else if (round == 0 || round == null){
                     adminView = 
                         <div>
-                            <CancelButton href={'/'}>Home</CancelButton>
                             <Button onClick={this.handleStartGame}>Start Game</Button>
                         </div>
                 } else {
                     adminView = 
                         <div>
-                            <CancelButton href={'/'}>Home</CancelButton>
                             <Button onClick={this.handleUpdateGame}>Next Round</Button>
                         </div>
                 }

@@ -21,6 +21,4 @@ router.get('/players_for_room/:room_code', PlayerCtrl.getPlayersForRoom)
 
 router.get('/nuke', GameCtrl.deleteEverything)
 
-
-
 module.exports = router
